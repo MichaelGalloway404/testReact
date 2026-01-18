@@ -1,38 +1,79 @@
-export default async function handler(req, res) {
-  try {
-    console.log("Method:", req.method);
-    console.log("Body:", req.body);
+import { useState } from 'react';
+import './App.css';
 
-    const sql = neon(process.env.DATABASE_URL);
+function App() {
+  const [name, setName] = useState("");
+  const [phrase, setPhrase] = useState("");
+  const [phrases, setPhrases] = useState([]);
 
-    if (req.method === "POST") {
-      const { name, phrase } = req.body;
-      console.log("Inserting:", { name, phrase });
+  async function submitPhrase() {
+    if (!name || !phrase) return alert("Enter name and phrase");
 
-      const inserted = await sql`
-        INSERT INTO phrases (name, phrase)
-        VALUES (${name}, ${phrase})
-        RETURNING id, name, phrase
-      `;
+    const res = await fetch("/api", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, phrase }),
+    });
 
-      console.log("Inserted:", inserted);
+    const data = await res.json();
 
-      return res.status(200).json({ ok: true, inserted });
-    }
+    if (!data.ok) return alert("Failed to submit");
 
-    if (req.method === "GET") {
-      const rows = await sql`
-        SELECT id, name, phrase
-        FROM phrases
-        ORDER BY id DESC
-      `;
-      console.log("Fetched rows:", rows);
-      return res.status(200).json(rows);
-    }
-
-    return res.status(405).json({ error: "Method Not Allowed" });
-  } catch (err) {
-    console.error("API Error:", err);
-    return res.status(500).json({ error: "Internal Server Error" });
+    setName("");
+    setPhrase("");
+    loadPhrases(); // Refresh after submit
   }
+
+  async function loadPhrases() {
+    try {
+      const res = await fetch("/api");
+      const data = await res.json();
+
+      if (!Array.isArray(data)) {
+        console.error("API returned:", data);
+        alert("API error — check console");
+        return;
+      }
+
+      setPhrases(data);
+    } catch (err) {
+      console.error("Fetch error:", err);
+      alert("Failed to load phrases");
+    }
+  }
+
+  return (
+    <main style={{ padding: 20 }}>
+      <h1>Phrase Wall</h1>
+
+      <input
+        placeholder="Your name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <br />
+
+      <input
+        placeholder="Your phrase"
+        value={phrase}
+        onChange={(e) => setPhrase(e.target.value)}
+      />
+      <br />
+
+      <button onClick={submitPhrase}>Submit</button>
+      <button onClick={loadPhrases} style={{ marginLeft: 10 }}>
+        Load Phrases
+      </button>
+
+      <ul>
+        {phrases.map((p) => (
+          <li key={p.id}>
+            <strong>{p.name}:</strong> {p.phrase}
+          </li>
+        ))}
+      </ul>
+    </main>
+  );
 }
+
+export default App;
