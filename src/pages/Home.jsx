@@ -83,7 +83,7 @@ function Home() {
                 ))}
             </ul>
             <h1>Home Page</h1>
-            <button onClick={() => navigate("/")}>
+            <button onClick={() => navigate("/second")}>
                 Go to Home Page
             </button>
         </div>
