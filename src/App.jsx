@@ -18,7 +18,7 @@ function App() {
   const [phrases, setPhrases] = useState([]);
 
   async function submitPhrase() {
-    await fetch("/api", {
+    await fetch("/assets/api", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, phrase }),
@@ -29,7 +29,7 @@ function App() {
   }
 
   async function loadPhrases() {
-  const res = await fetch("/api");
+  const res = await fetch("/assets/api");
   const data = await res.json();
 
   if (!Array.isArray(data)) {
