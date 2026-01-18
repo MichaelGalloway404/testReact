@@ -83,8 +83,8 @@ function Home() {
                 ))}
             </ul>
             <h1>Home Page</h1>
-            <button onClick={() => navigate("/second")}>
-                Go to Second Page
+            <button onClick={() => navigate("/")}>
+                Go to Home Page
             </button>
         </div>
     );
