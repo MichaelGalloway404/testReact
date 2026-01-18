@@ -1,46 +1,46 @@
-import { useState } from 'react'
-import './App.css'
+import { useState } from 'react';
+import './App.css';
 
 function App() {
-  // const [count, setCount] = useState(0)
-
-  // return (
-  //   <>
-  //     <div className="card">
-  //       <button onClick={() => setCount((count) => count + 1)}>
-  //         count is {count}
-  //       </button>
-  //     </div>
-  //   </>
-  // )
   const [name, setName] = useState("");
   const [phrase, setPhrase] = useState("");
   const [phrases, setPhrases] = useState([]);
 
   async function submitPhrase() {
-    await fetch("/api", {
+    if (!name || !phrase) return alert("Enter name and phrase");
+
+    const res = await fetch("/api", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, phrase }),
     });
 
+    const data = await res.json();
+
+    if (!data.ok) return alert("Failed to submit");
+
     setName("");
     setPhrase("");
+    loadPhrases(); // Refresh after submit
   }
 
   async function loadPhrases() {
-  const res = await fetch("/api");
-  const data = await res.json();
+    try {
+      const res = await fetch("/api");
+      const data = await res.json();
 
-  if (!Array.isArray(data)) {
-    console.error("API returned:", data);
-    alert("API error — check console");
-    return;
+      if (!Array.isArray(data)) {
+        console.error("API returned:", data);
+        alert("API error — check console");
+        return;
+      }
+
+      setPhrases(data);
+    } catch (err) {
+      console.error("Fetch error:", err);
+      alert("Failed to load phrases");
+    }
   }
-
-  setPhrases(data);
-}
-
 
   return (
     <main style={{ padding: 20 }}>
@@ -66,8 +66,8 @@ function App() {
       </button>
 
       <ul>
-        {phrases.map((p, i) => (
-          <li key={i}>
+        {phrases.map((p) => (
+          <li key={p.id}>
             <strong>{p.name}:</strong> {p.phrase}
           </li>
         ))}
@@ -76,4 +76,4 @@ function App() {
   );
 }
 
-export default App
+export default App;
