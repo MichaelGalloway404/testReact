@@ -6,28 +6,49 @@ function App() {
   const [phrase, setPhrase] = useState("");
   const [phrases, setPhrases] = useState([]);
 
+  // Submit a new phrase to the serverless API
   const submitPhrase = async () => {
-    await fetch("http://localhost:5000/api/phrases", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, phrase }),
-    });
+    if (!name || !phrase) return; // simple validation
 
-    setName("");
-    setPhrase("");
+    try {
+      const res = await fetch("/api/phrases", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, phrase }),
+      });
+
+      const data = await res.json();
+      if (data.ok) {
+        setName("");
+        setPhrase("");
+        loadPhrases(); // automatically reload after submitting
+      } else {
+        alert("Failed to submit phrase");
+        console.error(data);
+      }
+    } catch (err) {
+      console.error("Error submitting phrase:", err);
+      alert("Error submitting phrase — check console");
+    }
   };
 
+  // Load phrases from the serverless API
   const loadPhrases = async () => {
-    const res = await fetch("http://localhost:5000/api/phrases");
-    const data = await res.json();
+    try {
+      const res = await fetch("/api/phrases");
+      const data = await res.json();
 
-    if (!Array.isArray(data)) {
-      console.error("API returned:", data);
-      alert("API error — check console");
-      return;
+      if (!Array.isArray(data)) {
+        console.error("API returned:", data);
+        alert("API error — check console");
+        return;
+      }
+
+      setPhrases(data);
+    } catch (err) {
+      console.error("Error loading phrases:", err);
+      alert("Error loading phrases — check console");
     }
-
-    setPhrases(data);
   };
 
   return (
