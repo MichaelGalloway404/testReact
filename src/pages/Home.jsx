@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import BookSearch from './components/BookSearch';
+import BookSearch from '../components/BookSearch';
 
 function Home() {
     const navigate = useNavigate();
