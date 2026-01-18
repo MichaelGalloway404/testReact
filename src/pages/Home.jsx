@@ -86,6 +86,7 @@ function Home() {
             <button onClick={() => navigate("/second")}>
                 Go to Home Page
             </button>
+            <BookSearch />
         </div>
     );
 }
