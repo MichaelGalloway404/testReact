@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import "../styles/secondPage.css"
 
 function SecondPage() {
   const navigate = useNavigate();
